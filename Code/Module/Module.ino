@@ -198,9 +198,9 @@ int accDetect = 0;*/
 
   String textMsg = "xoBlack has crashed!\n\nLocation: ";
   textMsg.concat("Lattitude: ");
-  textMsg.concat(gps.location.lat());
+  textMsg.concat("42.697392");
   textMsg.concat(" Longtitude: ");
-  textMsg.concat(gps.location.lat());
+  textMsg.concat("23.300147");
   textMsg.concat("\nReasons:");
   if(accDetect == 1) {
     textMsg.concat(" Accelerometer Detection ");
