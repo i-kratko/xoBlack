@@ -182,12 +182,32 @@ void sendNotif() {
   SMTP_Message message;
 
   /* Set the message headers */
-  message.sender.name = F("ESP Mail");
+  message.sender.name = F("xoBlack");
   message.sender.email = AUTHOR_EMAIL;
-  message.subject = F("Test sending plain text Email");
+  message.subject = F("xoBlack has crashed");
   message.addRecipient(F("Someone"), RECIPIENT_EMAIL);
 
-  String textMsg = "This is simple plain text message";
+  /*
+  Serial.print(gps.location.lat(), 6);
+      Serial.print(F(","));
+      Serial.print(gps.location.lng(), 6);
+      Serial.println("");
+      
+int micDetect = 0;
+int accDetect = 0;*/
+
+  String textMsg = "xoBlack has crashed!\n\nLocation: ";
+  textMsg.concat("Lattitude: ");
+  textMsg.concat(gps.location.lat());
+  textMsg.concat(" Longtitude: ");
+  textMsg.concat(gps.location.lat());
+  textMsg.concat("\nReasons:");
+  if(accDetect == 1) {
+    textMsg.concat(" Accelerometer Detection ");
+  }
+  if(micDetect == 1) {
+    textMsg.concat(" Microphone Detection ");
+  }
   message.text.content = textMsg;
 
   /** If the message to send is a large string, to reduce the memory used from internal copying  while sending,
