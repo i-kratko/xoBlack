@@ -15,12 +15,14 @@
 - [Microsoft Visio](https://www.microsoft.com/en-us/microsoft-365/visio/flowchart-software)
 
 ## **Блокова схема**
-
+![image](https://raw.githubusercontent.com/i-kratko/xoBlack/main/Photos/BlockScheme.png)
 
 ## **Принципна електрическа схема**
-
+![image](https://raw.githubusercontent.com/i-kratko/xoBlack/main/Photos/Scheme.png)
 
 ## **Автори:**
 - **Любомир Станев** - *Разработчик на платката и работа със сензори*
 - **Николай Йорданов** - *Софтуер разработчик и логика на проекта*
 - **Христо Люцканов** - *Разработчик на дизайн и схематика*
+
+## **Дизайн**
