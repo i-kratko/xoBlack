@@ -8,6 +8,8 @@
 
 ## [**Презентация**](https://docs.google.com/presentation/d/1n54yDzxjblskZXQgGM2RvAjgUt189R0x6xPc_PvSBKk/edit#slide=id.p)
 
+## [**Документация**](https://docs.google.com/document/d/1Y2nGr-Jj9FE2rxCSlPYThKdRNpXQGkJ5lG7DJUse4Wo/edit#heading=h.v6j5vyci3fy)
+
 ## **Използвани технологии:**
 - [ESP32 Development Board](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s2/hw-reference/esp32s2/user-guide-devkitm-1-v1.html)
 - [Arduino IDE](https://forum.arduino.cc/t/what-is-the-language-you-type-in-the-arduino-ide/45601)
