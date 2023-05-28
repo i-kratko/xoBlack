@@ -1,4 +1,4 @@
-
+//needed libraries
 #include <Arduino.h>
 #if defined(ESP32)
   #include <WiFi.h>
@@ -10,14 +10,11 @@
 #include "Wire.h"
 #include <MPU6050_light.h>
 
-//trust
-//500 promenlivi
-
-
-//trust
+//networking part setup for sending email
+//TODO: INCLUDE IN A HEADER
 #include <ESP_Mail_Client.h>
-#define WIFI_SSID "Galaxy S20 FE 5G"
-#define WIFI_PASSWORD "otednodoosem"
+#define WIFI_SSID "HUAWEI-gvG5_EXT"
+#define WIFI_PASSWORD "3erkkpq3"
 #define SMTP_HOST "smtp.gmail.com"
 #define SMTP_PORT esp_mail_smtp_port_587 // port 465 is not available for Outlook.com
 #define AUTHOR_EMAIL "noreplyxoblack@gmail.com"
@@ -25,40 +22,31 @@
 #define RECIPIENT_EMAIL "nikiyord1@gmail.com"
 
 SMTPSession smtp;
-//krai na trust chast 1
 
+//setup sensors and variables
 MPU6050 mpu(Wire);
 TinyGPSPlus gps;
-SoftwareSerial ss(5, 18);
+SoftwareSerial ss(18, 5);
 
 long timer = 0;
 int Sen = 36;
-int RLed = 32;
-int GLed = 14;
-int BLed = 27;
-
-
 int countdown = 5;
 int x = 0;
-
 int micDetect = 0;
 int accDetect = 0;
-
 int mailSent = 0;
+float lastLAT = 0;
+float lastLNG = 0;
 
-/* Callback function to get the Email sending status */
+//Function to get email sending status
 void smtpCallback(SMTP_Status status);
 
 void setup() {
   pinMode(Sen, INPUT);
-  pinMode(RLed, OUTPUT);
-  pinMode(GLed, OUTPUT);
-  pinMode(BLed, OUTPUT);
-  //Serial.begin(9600);
   Serial.begin(9600); 
-  ss.begin(4800);
+  ss.begin(9600);
   Wire.begin();
-  
+
   byte status = mpu.begin();
   Serial.print(F("MPU6050 status: "));
   Serial.println(status);
@@ -68,11 +56,8 @@ void setup() {
   delay(1000);
   mpu.calcOffsets(true,true); // gyro and accelero
   Serial.println("Done!\n");
-
-  
-  
 }
-
+//EMAIL SENDING
 void sendNotif() {
   #if defined(ARDUINO_ARCH_SAMD)
   while (!Serial)
@@ -152,33 +137,6 @@ void sendNotif() {
   config.time.gmt_offset = 3;
   config.time.day_light_offset = 0;
 
-  /* The full message sending logs can now save to file */
-  /* Since v3.0.4, the sent logs stored in smtp.sendingResult will store only the latest message logs */
-  // config.sentLogs.filename = "/path/to/log/file";
-  // config.sentLogs.storage_type = esp_mail_file_storage_type_flash;
-
-  /** In ESP32, timezone environment will not keep after wake up boot from sleep.
-   * The local time will equal to GMT time.
-   *
-   * To sync or set time with NTP server with the valid local time after wake up boot,
-   * set both gmt and day light offsets to 0 and assign the timezone environment string e.g.
-
-     config.time.ntp_server = F("pool.ntp.org,time.nist.gov");
-     config.time.gmt_offset = 0;
-     config.time.day_light_offset = 0;
-     config.time.timezone_env_string = "JST-9"; // for Tokyo
-
-   * The library will get (sync) the time from NTP server without GMT time offset adjustment
-   * and set the timezone environment variable later.
-   *
-   * This timezone environment string will be stored to flash or SD file named "/tze.txt"
-   * which set via config.time.timezone_file.
-   *
-   * See the timezone environment string list from
-   * https://github.com/nayarsystems/posix_tz_db/blob/master/zones.csv
-   *
-   */
-
   /* Declare the message class */
   SMTP_Message message;
 
@@ -197,19 +155,16 @@ void sendNotif() {
 int micDetect = 0;
 int accDetect = 0;*/
 
-  float latt = gps.location.lat();
-  float longt = gps.location.lng();
-
   String link = "www.google.com/maps/place/";
-  link.concat(gps.location.lat());
+  link.concat(lastLAT);
   link.concat("+");
-  link.concat(gps.location.lng());
+  link.concat(lastLNG);
 
   String textMsg = "xoBlack has crashed!\n\nLocation: ";
   textMsg.concat("Lattitude: ");
-  textMsg.concat("42.666726");
+  textMsg.concat(lastLAT);
   textMsg.concat(" Longtitude: ");
-  textMsg.concat("23.374677");
+  textMsg.concat(lastLNG);
   textMsg.concat("\nReasons:");
   if(accDetect == 1) {
     textMsg.concat(" Accelerometer Detection ");
@@ -333,18 +288,35 @@ int accDetect = 0;*/
   // smtp.sendingResult.clear();
 }
 
+static void smartDelay(unsigned long ms)
+{
+  unsigned long start = millis();
+  do 
+  {
+    while (ss.available())
+      gps.encode(ss.read());
+  } while (millis() - start < ms);
+}
+
 void loop() {
+  //mpu
   mpu.update();
-  delay(1000);
-  
+  //gps
+  Serial.println(gps.location.lat(),6);
+  Serial.println(gps.location.lng(),6);
+  lastLAT = gps.location.lat();
+  lastLNG = gps.location.lng();
+    smartDelay(1000);
+
+  //mic
   Serial.print(0);
   Serial.print(" ");
   Serial.print(analogRead(Sen));
   Serial.print(" ");
   Serial.println(4096);
-  delay(100);
- 
-    if(analogRead(Sen) > 2500)
+
+  //mic check
+  if(analogRead(Sen) > 2500)
     {
       Serial.println("Mic detect");
       micDetect = 1;
@@ -353,66 +325,25 @@ void loop() {
       
       //countdown = 10000;
     }
-
+  
+  //mpu check
   if (mpu.getGyroX() > 10 || mpu.getAccX() < -10) {
     Serial.println("Gyros detect");
     accDetect = 1;
     x++;
     delay(1000);
+  }
 
-
+  //sendNotif
   if(x >= 2)
   {
-    delay(30000);
+    delay(1000);
+    Serial.println("katastrofa bratme");
     if(mailSent == 0){
       Serial.println("Sending?");
       sendNotif();
       mailSent = 1;
     }
-    Serial.println("katastrofirahme ;d");
-    Serial.print(F("Location: ")); 
-    if (gps.location.isValid())
-    {
-      Serial.print(gps.location.lat(), 6);
-      Serial.print(F(","));
-      Serial.print(gps.location.lng(), 6);
-      Serial.println("");
-    }
-    else
-    {
-      Serial.print(F("INVALID"));
-    }
-    //todo red led
-    digitalWrite(GLed, HIGH);
-  }
-  if(x == 0)
-  {
-    //digitalWrite(GLed, HIGH);
-  }
-  if(x == 1)
-  {
-    Serial.println("Edin priznak za katastrofa :X");
-    //digitalWrite(BLed, HIGH);
-    //digitalWrite(GLed, LOW);
-  }
-  
-  if(countdown == 0)
-  {
-    x = 0;
-  }
- if(millis() - timer > 1000){ // print data every second
-    Serial.print(F("ACCELERO  X: "));Serial.print(mpu.getAccX());
-    Serial.print("\tY: ");Serial.print(mpu.getAccY());
-    Serial.print("\tZ: ");Serial.println(mpu.getAccZ());
-    Serial.println(F("=====================================================\n"));
-    timer = millis();
-  }
-  //print gps trudt
-  if(ss.available() > 1){
-  Serial.println(gps.location.lat(), 6);
-  Serial.println(gps.location.lng(), 6);
-  }
-  //countdown--;
 }}
 
 void smtpCallback(SMTP_Status status)
