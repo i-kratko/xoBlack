@@ -13,13 +13,13 @@
 //networking part setup for sending email
 //TODO: INCLUDE IN A HEADER
 #include <ESP_Mail_Client.h>
-#define WIFI_SSID "HUAWEI-gvG5_EXT"
-#define WIFI_PASSWORD "3erkkpq3"
+#define WIFI_SSID "your_ssid"
+#define WIFI_PASSWORD "your_password"
 #define SMTP_HOST "smtp.gmail.com"
 #define SMTP_PORT esp_mail_smtp_port_587 // port 465 is not available for Outlook.com
-#define AUTHOR_EMAIL "noreplyxoblack@gmail.com"
-#define AUTHOR_PASSWORD "aqghxsqozgzefmex"
-#define RECIPIENT_EMAIL "nikiyord1@gmail.com"
+#define AUTHOR_EMAIL "authour email"
+#define AUTHOR_PASSWORD "author password"
+#define RECIPIENT_EMAIL "recipient"
 
 SMTPSession smtp;
 
@@ -35,8 +35,8 @@ int x = 0;
 int micDetect = 0;
 int accDetect = 0;
 int mailSent = 0;
-float lastLAT = 0;
-float lastLNG = 0;
+String lastLAT = "0.000000";
+String lastLNG = "0.000000";
 
 //Function to get email sending status
 void smtpCallback(SMTP_Status status);
@@ -154,7 +154,7 @@ void sendNotif() {
       
 int micDetect = 0;
 int accDetect = 0;*/
-
+  
   String link = "www.google.com/maps/place/";
   link.concat(lastLAT);
   link.concat("+");
@@ -304,10 +304,9 @@ void loop() {
   //gps
   Serial.println(gps.location.lat(),6);
   Serial.println(gps.location.lng(),6);
-  lastLAT = gps.location.lat();
-  lastLNG = gps.location.lng();
+  lastLAT = String(gps.location.lat(), 6);
+  lastLNG = String(gps.location.lng(), 6);
     smartDelay(1000);
-
   //mic
   Serial.print(0);
   Serial.print(" ");
